@@ -17,8 +17,16 @@
             "email": "emykhailichenko@newage.io"
         }
     ],
+    "scripts": {
+        "check:analyse": "vendor/bin/phpstan analyse app --memory-limit=512M",
+        "check:codestyle": "./vendor/bin/php-cs-fixer fix",
+        "check:test": "vendor/bin/phpunit",
+        "correct:codestyle": "./vendor/bin/php-cs-fixer fix"
+    },
     "require-dev": {
-        "phpunit/phpunit": "^12.1"
+        "phpunit/phpunit": "^12.1",
+        "vimeo/psalm": "^6.5",
+        "friendsofphp/php-cs-fixer": "^3.75"
     },
     "require": {
         "guzzlehttp/guzzle": "^7.0",
