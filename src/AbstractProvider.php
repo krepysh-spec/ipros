@@ -11,6 +11,10 @@ use KrepyshSpec\IPros\Enums\ProviderRequestMethodEnum;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
+/**
+ * AbstractProvider is a base class for implementing time providers that fetch
+ * the current time from external HTTP APIs based on IP address or other parameters.
+ */
 abstract class AbstractProvider
 {
     /**
@@ -18,7 +22,7 @@ abstract class AbstractProvider
      *
      * @var Client
      */
-    private readonly Client $client;
+    protected Client $client;
 
     /**
      * Constructor with Guzzle client injection.
@@ -35,25 +39,37 @@ abstract class AbstractProvider
      */
     abstract protected function getApiUrl(): string;
 
+    /**
+     * Returns the HTTP method (GET, POST, etc.) used for the API request.
+     *
+     * @return ProviderRequestMethodEnum
+     */
     abstract protected function getRequestMethod(): ProviderRequestMethodEnum;
 
     /**
-     * Prepares the API URL by inserting any required query parameters.
+     * Constructs the full API URL using base URL and additional request options.
      *
      * @param string $apiUrl Base API URL.
-     * @param array $options Additional parameters.
-     * @return string|null Final API URL or null if cannot be prepared.
+     * @param array $options Additional parameters like 'ip' or 'apiKey'.
+     * @return string Final API URL with query or path parameters.
      */
     abstract protected function prepareApiUrl(string $apiUrl, array $options): string;
 
     /**
-     * Parses the decoded API response into a DateTimeImmutable object.
+     * Converts the decoded JSON API response into a DateTimeImmutable object.
      *
-     * @param array $response Decoded JSON response.
-     * @return DateTimeImmutable Parsed datetime.
+     * @param array $response Parsed API response as associative array.
+     * @return DateTimeImmutable Parsed date and time.
      */
     abstract protected function prepareResponse(array $response): DateTimeImmutable;
 
+    /**
+     * Gets the current time by sending a request to the external API.
+     *
+     * @param array|null $options Optional parameters such as IP address or API key.
+     * @throws Exception|RuntimeException If the request fails or response is invalid.
+     * @return DateTimeImmutable The current time returned by the provider.
+     */
     public function getNowTime(?array $options): DateTimeImmutable
     {
         try {
@@ -62,6 +78,7 @@ abstract class AbstractProvider
             $apiUrl = $this->prepareApiUrl($apiUrl, $options);
             $requestMethod = $this->getRequestMethod()->value;
 
+            // Dynamically call the method (e.g., $client->get($url))
             $response = $this->client->{$requestMethod}($apiUrl);
             $data = $this->parseResponse($response);
 
@@ -70,20 +87,18 @@ abstract class AbstractProvider
         } catch (RequestException $e) {
             throw new Exception('HTTP error from API: ' . $e->getMessage(), $e->getCode(), $e);
         } catch (GuzzleException $e) {
-            // Інші помилки Guzzle (проблеми з мережею тощо)
             throw new Exception('Network error while fetching time: ' . $e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
-            // Інші загальні помилки
             throw new RuntimeException('Unexpected error: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * Decodes and validates the API response JSON.
+     * Decodes the JSON response body into an associative array.
      *
-     * @param ResponseInterface $response Raw HTTP response.
-     * @throws Exception If JSON is invalid.
-     * @return array Decoded JSON as associative array.
+     * @param ResponseInterface $response HTTP response from the API.
+     * @throws Exception If JSON cannot be parsed.
+     * @return array Decoded JSON data.
      */
     private function parseResponse(ResponseInterface $response): array
     {
