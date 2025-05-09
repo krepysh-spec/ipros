@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace KrepyshSpec\IPros;
 
@@ -7,7 +7,11 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use JsonException;
 use KrepyshSpec\IPros\Enums\ProviderRequestMethodEnum;
+use KrepyshSpec\IPros\Exceptions\ProviderRequestException;
+use KrepyshSpec\IPros\Exceptions\ProviderResponseParseException;
+use KrepyshSpec\IPros\Exceptions\ProviderUnexpectedException;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
@@ -66,8 +70,10 @@ abstract class AbstractProvider
     /**
      * Gets the current time by sending a request to the external API.
      *
-     * @param array|null $options Optional parameters such as IP address or API key.
-     * @throws Exception|RuntimeException If the request fails or response is invalid.
+     * @param array<string, mixed>|null $options Optional parameters such as IP address or API key.
+     * @throws ProviderRequestException If the HTTP request fails.
+     * @throws ProviderResponseParseException If the response cannot be parsed.
+     * @throws ProviderUnexpectedException For all other unexpected errors.
      * @return DateTimeImmutable The current time returned by the provider.
      */
     public function getNowTime(?array $options): DateTimeImmutable
@@ -84,12 +90,12 @@ abstract class AbstractProvider
 
             return $this->prepareResponse($data);
 
-        } catch (RequestException $e) {
-            throw new Exception('HTTP error from API: ' . $e->getMessage(), $e->getCode(), $e);
-        } catch (GuzzleException $e) {
-            throw new Exception('Network error while fetching time: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (RequestException|GuzzleException $e) {
+            throw new ProviderRequestException('Error while making request to Provider: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (JsonException $e) {
+            throw new ProviderResponseParseException('Failed to parse API response: ' . $e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
-            throw new RuntimeException('Unexpected error: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new ProviderUnexpectedException('Unexpected error: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -104,12 +110,6 @@ abstract class AbstractProvider
     {
         $body = (string) $response->getBody();
 
-        $decoded = json_decode($body, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Invalid JSON response from API: ' . json_last_error_msg());
-        }
-
-        return $decoded;
+        return json_decode($body, true, 512, JSON_THROW_ON_ERROR);
     }
 }
