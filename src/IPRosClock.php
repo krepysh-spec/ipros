@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace KrepyshSpec\IPros;
 
@@ -9,7 +9,7 @@ use Psr\Clock\ClockInterface;
 /**
  * Custom clock implementation that gets time from an external provider.
  */
-class IPRosClock implements ClockInterface
+final class IPRosClock implements ClockInterface
 {
     /**
      * User-defined options (e.g., ['ip' => '8.8.8.8']).

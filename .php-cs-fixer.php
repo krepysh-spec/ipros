@@ -7,8 +7,9 @@ $finder = Finder::create()
     ->in(__DIR__ . '/src');
 
 $config = (new Config())->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect());
+
 return $config->setRules([
-    'strict_param' => true
+    'declare_strict_types' => true
 ])
     ->setRiskyAllowed(true)
     ->setUsingCache(true)

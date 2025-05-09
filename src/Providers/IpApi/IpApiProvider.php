@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace KrepyshSpec\IPros\Providers\IpApi;
 
@@ -16,7 +16,7 @@ use RuntimeException;
  * - https://ipapi.co/json/
  * - https://ipapi.co/8.8.8.8/json/
  */
-class IpApiProvider extends AbstractProvider
+final class IpApiProvider extends AbstractProvider
 {
     /**
      * Returns the base API URL.
