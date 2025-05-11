@@ -31,31 +31,17 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Run test suite
-        run: composer check:test
-
-      - name: Generate coverage report
+      - name: Run PHPUnit and generate coverage report
         run: |
           mkdir -p coverage
           vendor/bin/phpunit --coverage-clover=coverage/coverage.xml
 
-      - name: Generate and upload coverage badge
-        uses: AlaaOmair/phpunit-coverage-badge@v1
+      - name: Generate coverage badge
+        uses: nektos/act@v2
         with:
-          badge-type: 'flat-square'
-          badge-color: 'brightgreen'
-          coverage-file: 'coverage/coverage.xml'
-          output-file: 'badges/coverage.svg'
-
-      - name: Commit and push coverage badge
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add badges/coverage.svg
-          git commit -m "Update coverage badge"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          title: Coverage
+          file: coverage/coverage.xml
+          badge-style: flat-square
 
       - name: Run code style
         run: composer check:codestyle
