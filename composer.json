@@ -31,10 +31,15 @@
         }
     ],
     "scripts": {
+        "check:all": [
+            "@check:analyse",
+            "@check:codestyle",
+            "@check:test"
+        ],
         "check:analyse": "vendor/bin/phpstan analyse src",
         "check:codestyle": "vendor/bin/php-cs-fixer fix --dry-run --diff",
-        "correct:codestyle": "vendor/bin/php-cs-fixer fix",
-        "check:test": "vendor/bin/phpunit"
+        "check:test": "vendor/bin/phpunit",
+        "correct:codestyle": "vendor/bin/php-cs-fixer fix"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.75",

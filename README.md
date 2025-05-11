@@ -2,6 +2,8 @@
 
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![Coverage](badges/coverage.svg)
+
 
 
 IPRosClock is a PHP library that implements `Psr\Clock\ClockInterface` and retrieves the current time using external time or geo-IP providers such as [ipapi.co](https://ipapi.co/).

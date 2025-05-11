@@ -7,6 +7,10 @@
 *.sw?
 
 .env
+composer.lock
+
+/badges/*
+!/badges/coverage.svg
 
 /vendor/
 .php-cs-fixer.cache
