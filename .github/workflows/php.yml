@@ -11,32 +11,48 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
 
-    - name: Run test suite
-      run: composer check:test
+      - name: Run PHPUnit and generate coverage report
+        run: |
+          mkdir -p coverage
+          vendor/bin/phpunit --coverage-clover=coverage/coverage.xml
 
-    - name: Run code style
-      run: composer check:codestyle
+      - name: Create coverage badge
+        run: |
+          COVERAGE=$(php -r "echo round(simplexml_load_file('coverage/coverage.xml')->coverage['line-rate'] * 100);")
+          curl -o coverage-badge.svg https://img.shields.io/badge/coverage-${COVERAGE}%25-brightgreen
 
-    - name: Run analyse code
-      run: composer check:analyse
+      - name: Commit coverage badge
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage-badge.svg
+          git commit -m "Update coverage badge"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run code style
+        run: composer check:codestyle
+
+      - name: Run analyse code
+        run: composer check:analyse
