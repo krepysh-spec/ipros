@@ -97,6 +97,43 @@ class MyProvider extends AbstractProvider
 }
 ```
 
+## 🛠️ Local Development
+
+### With PHP installed locally
+```bash
+# Clone the repository
+git clone https://github.com/krepysh-spec/ipros.git
+cd ipros
+
+# Install dependencies
+composer install
+
+# Run tests
+composer test
+```
+
+### With Docker (if PHP not installed)
+```bash
+# Clone the repository
+git clone https://github.com/krepysh-spec/ipros.git
+cd ipros
+
+# Start development environment
+make up
+
+# Install dependencies
+make install
+
+# Run tests
+make test
+
+# Check code style
+make codestyle
+
+# Run mutation testing
+make infection
+```
+
 ## ✅ Requirements
 
 - PHP 8.1+

@@ -12,6 +12,7 @@ use KrepyshSpec\IPros\Enums\ProviderRequestMethodEnum;
 use KrepyshSpec\IPros\Exceptions\ProviderRequestException;
 use KrepyshSpec\IPros\Exceptions\ProviderResponseParseException;
 use KrepyshSpec\IPros\Exceptions\ProviderUnexpectedException;
+use KrepyshSpec\IPros\Interfaces\ProviderInterface;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
@@ -19,7 +20,7 @@ use RuntimeException;
  * AbstractProvider is a base class for implementing time providers that fetch
  * the current time from external HTTP APIs based on IP address or other parameters.
  */
-abstract class AbstractProvider
+abstract class AbstractProvider implements ProviderInterface
 {
     /**
      *  HTTP client for API requests.
@@ -76,12 +77,12 @@ abstract class AbstractProvider
      * @throws ProviderUnexpectedException For all other unexpected errors.
      * @return DateTimeImmutable The current time returned by the provider.
      */
-    public function getNowTime(?array $options): DateTimeImmutable
+    public final function getNowTime(?array $options): DateTimeImmutable
     {
         try {
 
             $apiUrl = $this->getApiUrl();
-            $apiUrl = $this->prepareApiUrl($apiUrl, $options);
+            $apiUrl = $this->prepareApiUrl($apiUrl, $options ?? []);
             $requestMethod = $this->getRequestMethod()->value;
 
             // Dynamically call the method (e.g., $client->get($url))

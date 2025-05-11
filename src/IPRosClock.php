@@ -4,6 +4,7 @@ namespace KrepyshSpec\IPros;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use KrepyshSpec\IPros\Interfaces\ProviderInterface;
 use Psr\Clock\ClockInterface;
 
 /**
@@ -21,7 +22,7 @@ final class IPRosClock implements ClockInterface
     /**
      * @param AbstractProvider $provider
      */
-    public function __construct(private readonly AbstractProvider $provider)
+    public function __construct(private readonly ProviderInterface $provider)
     {
     }
 
